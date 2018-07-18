@@ -4,6 +4,10 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/WorkTool.iml" filepath="$PROJECT_DIR$/WorkTool.iml" />
       <module fileurl="file://$PROJECT_DIR$/lodop_demo/lodop_demo.iml" filepath="$PROJECT_DIR$/lodop_demo/lodop_demo.iml" />
+      <module fileurl="file://$PROJECT_DIR$/network/network.iml" filepath="$PROJECT_DIR$/network/network.iml" />
+      <module fileurl="file://$PROJECT_DIR$/opc/opc.iml" filepath="$PROJECT_DIR$/opc/opc.iml" />
+      <module fileurl="file://$PROJECT_DIR$/opcclient/opcclient.iml" filepath="$PROJECT_DIR$/opcclient/opcclient.iml" />
+      <module fileurl="file://$PROJECT_DIR$/picture/picture.iml" filepath="$PROJECT_DIR$/picture/picture.iml" />
       <module fileurl="file://$PROJECT_DIR$/testweb/testweb.iml" filepath="$PROJECT_DIR$/testweb/testweb.iml" />
     </modules>
   </component>

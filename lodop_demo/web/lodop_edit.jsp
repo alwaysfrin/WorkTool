@@ -18,7 +18,7 @@ if(modelName != null){
 <script language="javascript" src="LodopFuncs.js"></script>
 <script language="javascript" type="text/javascript">
     window.onload = function() {
-        initLodop();
+        setTimeout("initLodop()",500);
     };
 
     var LODOP; //声明为全局变
@@ -73,8 +73,8 @@ if(modelName != null){
     <input type="button" value="保存模板" onclick="saveForm()">&nbsp;&nbsp;
     <input type="button" value="获取模板" onclick="alertForm()">&nbsp;&nbsp;
 </h1>
-<object id="LODOP_OB" classid="clsid:2105C259-1E0C-4534-8141-A753534CB4CA" width="90%" height="80%">
-    <embed id="LODOP_EM" type="application/x-print-lodop" width="100%" height="100%" pluginspage="install_lodop32.exe"></embed>
+<object id="LODOP_OB" classid="clsid:2105C259-1E0C-4534-8141-A753534CB4CA" width="600" height="400">
+    <embed id="LODOP_EM" type="application/x-print-lodop" width="600" height="400" pluginspage="install_lodop32.exe"></embed>
 </object>
 </body>
 </html>
