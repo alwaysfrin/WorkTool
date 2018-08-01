@@ -7,7 +7,7 @@
 <%
 String modelName = request.getParameter("modelName");
 boolean editFlag = false;
-HashMap<String, String> formMap = (HashMap<String, String>) request.getServletContext().getAttribute("formMap");
+HashMap<String, String> formMap = (HashMap<String, String>) request.objectgetServletContext().getAttribute("formMap");
 if(modelName != null){
     if (formMap != null) {
         //修改记录
@@ -40,6 +40,12 @@ if(modelName != null){
                 detail=Value;
             };
         }
+        var objSize = LODOP.GET_VALUE("ItemCount",0);
+        alert("控件数量："  + objSize);
+        for(var i=1;i<=objSize;i++){
+            alert("控件" + i + "，类名:" + LODOP.GET_VALUE("ItemName",i));
+        }
+
         detail = LODOP.GET_VALUE("ProgramData",0);
         return detail;
     }
@@ -73,8 +79,8 @@ if(modelName != null){
     <input type="button" value="保存模板" onclick="saveForm()">&nbsp;&nbsp;
     <input type="button" value="获取模板" onclick="alertForm()">&nbsp;&nbsp;
 </h1>
-<object id="LODOP_OB" classid="clsid:2105C259-1E0C-4534-8141-A753534CB4CA" width="600" height="400">
-    <embed id="LODOP_EM" type="application/x-print-lodop" width="600" height="400" pluginspage="install_lodop32.exe"></embed>
+<object id="LODOP_OB" classid="clsid:2105C259-1E0C-4534-8141-A753534CB4CA" width="100%" height="60%">
+    <embed id="LODOP_EM" type="application/x-print-lodop" width="100%" height="100%" pluginspage="install_lodop32.exe"></embed>
 </object>
 </body>
 </html>
