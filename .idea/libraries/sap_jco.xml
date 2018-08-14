@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="sap-jco">
+    <CLASSES>
+      <root url="file://E:/lib-factory/sap-jco" />
+    </CLASSES>
+    <JAVADOC />
+    <NATIVE>
+      <root url="file://E:/lib-factory/sap-jco" />
+    </NATIVE>
+    <SOURCES />
+    <jarDirectory url="file://E:/lib-factory/sap-jco" recursive="false" />
+  </library>
+</component>

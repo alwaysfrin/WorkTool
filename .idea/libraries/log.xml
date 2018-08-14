@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="log">
+    <CLASSES>
+      <root url="file://E:/lib-factory/log" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="file://E:/lib-factory/log" />
+    </SOURCES>
+    <jarDirectory url="file://E:/lib-factory/log" recursive="false" />
+    <jarDirectory url="file://E:/lib-factory/log" recursive="false" type="SOURCES" />
+  </library>
+</component>

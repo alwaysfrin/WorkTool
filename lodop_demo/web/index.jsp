@@ -77,7 +77,7 @@
       }
 
       function loadPrint(){
-          document.getElementById("LODOP_OB").style.display="none";
+          //document.getElementById("LODOP_OB").style.display="none";
           initLodop();
 
           //装载模板

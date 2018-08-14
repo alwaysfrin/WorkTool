@@ -7,6 +7,11 @@
         <element id="directory" name="classes">
           <element id="module-output" name="picture" />
         </element>
+        <element id="directory" name="lib">
+          <element id="file-copy" path="$PROJECT_DIR$/picture/web/WEB-INF/lib/jna.jar" />
+          <element id="file-copy" path="$PROJECT_DIR$/picture/web/WEB-INF/lib/examples.jar" />
+          <element id="library" level="project" name="log" />
+        </element>
       </element>
     </root>
   </artifact>

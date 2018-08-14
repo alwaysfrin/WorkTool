@@ -1,15 +1,12 @@
 package thread;
 
-import pojo.TorqueParam;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import pojo.TorqueSocket;
-import util.ConstWords;
-import util.SocketTool;
-import util.UtilTool;
+import util.TorqueConstWords;
+import util.TorqueTool;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.Socket;
 
 /**
  * @Description :   心跳和关闭端口线程
@@ -19,6 +16,7 @@ import java.net.Socket;
  * @Modify :
  **/
 public class HeartBeatThread extends Thread {
+    public static final Logger LOGGER = LoggerFactory.getLogger(HeartBeatThread.class);
 
     private TorqueSocket torqueSocket;  // 端口
     private int idx = 1;    //计数器
@@ -30,12 +28,12 @@ public class HeartBeatThread extends Thread {
         this.torqueSocket.setHeartBeatThread(this);
         this.torqueSocket.setHeartBeatThreadStatus(true);
 
-        SocketTool.TORQUE_THREAD_LIST.add(this);
+        TorqueTool.TORQUE_THREAD_LIST.add(this);
     }
 
     @Override
     public void run() {
-        //System.out.println("心跳，检测socket状态：" + !torqueSocket.getSocket().isClosed());
+        //LOGGER.info("心跳，检测socket状态：" + !torqueSocket.getSocket().isClosed());
         if(torqueSocket.getSocket().isClosed()){
             //已经关闭
         }else{
@@ -43,8 +41,8 @@ public class HeartBeatThread extends Thread {
                 if(idx < maxTimeLimit) {
                     if (idx % 14 == 0) {
                         //发送心跳{
-                        //System.out.println("发送心跳：" + idx);
-                        UtilTool.sendCommand(torqueSocket.getSocket(), ConstWords.HEART_BEAT_COMMAND);
+                        //LOGGER.info("发送心跳：" + idx);
+                        TorqueTool.sendCommand(torqueSocket.getSocket(), TorqueConstWords.HEART_BEAT_COMMAND);
                     }
                     idx++;
                     try {
@@ -52,7 +50,7 @@ public class HeartBeatThread extends Thread {
                     } catch (InterruptedException e) {
                     }
                 }else{
-                    System.out.println("操作时限：" + idx + "，结束心跳");
+                    LOGGER.info("操作时限：" + idx + "，结束心跳");
                     workFlag = false;
                 }
             }
@@ -60,13 +58,13 @@ public class HeartBeatThread extends Thread {
         try {
             //端口关闭
             if(!torqueSocket.getSocket().isClosed()) {
-                SocketTool.closeToqueSocket(torqueSocket);
+                TorqueTool.closeToqueSocket(torqueSocket);
             }
-            SocketTool.TORQUE_SOCKET_MAP.remove(torqueSocket.getIp() + torqueSocket.getPort());
+            TorqueTool.TORQUE_SOCKET_MAP.remove(torqueSocket.getIp() + torqueSocket.getPort());
         } catch (IOException e) {
-            System.out.println("关闭socket出错：" + e.getMessage());
+            LOGGER.error("关闭socket出错：" + e.getMessage());
         }
-        System.out.println("心跳线程已结束...");
+        LOGGER.info("心跳线程已结束...");
     }
 
     /**

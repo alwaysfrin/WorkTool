@@ -7,7 +7,7 @@
 <%
 String modelName = request.getParameter("modelName");
 boolean editFlag = false;
-HashMap<String, String> formMap = (HashMap<String, String>) request.objectgetServletContext().getAttribute("formMap");
+HashMap<String, String> formMap = (HashMap<String, String>) request.getServletContext().getAttribute("formMap");
 if(modelName != null){
     if (formMap != null) {
         //修改记录

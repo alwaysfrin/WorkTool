@@ -88,7 +88,7 @@ public class TorqueParam {
     public long batchSize;
 
     /**
-     * 当前是第几枪
+     * 当前是成功的第几枪
      * Pos: 102~105
      */
     public long batchCounter;
