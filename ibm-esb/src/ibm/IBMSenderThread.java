@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 
 /**
  * @Description :   IBMMQ，发送数据至队列线程
@@ -20,13 +21,31 @@ import java.io.IOException;
  **/
 public class IBMSenderThread implements Runnable {
     public static final Logger LOGGER = LoggerFactory.getLogger(IBMSenderThread.class);
+
+    public static final int CHARACTER_SET = 1208;
+    public static final String FORMAT ="MQSTR";
+    public static final int ENCODING =546;
+    public static final int WAIT_INTERVAL = 5000;    //接收队列响应时间
+
     private String sendData;
     private MQParam mqParam;
     private MQQueueManager qMgr;
+    private byte[] msgId;
+
+    public IBMSenderThread(MQParam param,byte[] msgId,String data){
+        this.mqParam = param;
+        this.sendData = data;
+        this.msgId = msgId;
+    }
 
     public IBMSenderThread(MQParam param, String data){
         this.mqParam = param;
         this.sendData = data;
+        try {
+            this.msgId = String.valueOf(System.currentTimeMillis()).getBytes("UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
     }
 
     public void run() {
@@ -59,14 +78,18 @@ public class IBMSenderThread implements Runnable {
             MQQueue queue = qMgr.accessQueue(mqParam.getQueueName(), openOptions);
 
             MQMessage msg = new MQMessage();
-            //msg.messageId = "001".getBytes();   //消息id
+            msg.messageId = msgId;
+            msg.characterSet = CHARACTER_SET;
+            msg.format = FORMAT;
+            msg.encoding = ENCODING;
+
             msg.messageType = MQConstants.MQMT_REQUEST; //消息类型
             msg.replyToQueueName = mqParam.getReplyToQueueName();    //发送至：队列名称
+            msg.expiry = -1;    //不过期
 
             msg.writeString(sendData);
             //msg.writeUTF(sendData);
             //msg.writeObject(sendData);
-            msg.expiry = -1;    //不过期
 
             MQPutMessageOptions po = new MQPutMessageOptions();
             queue.put(msg,po);

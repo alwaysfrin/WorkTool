@@ -1,5 +1,8 @@
 import oracle.jdbc.OracleTypes;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -17,6 +20,7 @@ import java.util.Map;
  * @Modify :
  **/
 public class DBFactory {
+    private static final Logger LOGGER = LoggerFactory.getLogger(DBFactory.class);
     private Connection con = null;
 
     public interface IResultSetCall<T>{
@@ -69,6 +73,8 @@ public class DBFactory {
                 }
                 lists.add(map);
             }
+        }catch(Exception e){
+            LOGGER.error(e.getMessage(),e);
         } finally {
             if (null != rs)
                 rs.close();
@@ -85,8 +91,9 @@ public class DBFactory {
         ResultSet rs = null;
         try {
             preStmt = con.prepareStatement(sql);
-            for (int i = 0; i < params.length; i++)
+            for (int i = 0; i < params.length; i++) {
                 preStmt.setObject(i + 1, params[i]);// 下标从1开始
+            }
             rs = preStmt.executeQuery();
             ResultSetMetaData rsmd = rs.getMetaData();
             int columnCount = rsmd.getColumnCount();
@@ -99,6 +106,8 @@ public class DBFactory {
                 }
                 lists.add(map);
             }
+        }catch(Exception e){
+            LOGGER.error(e.getMessage(),e);
         } finally {
             if (null != rs)
                 rs.close();
@@ -132,6 +141,8 @@ public class DBFactory {
                 }
                 lists.add(t);
             }
+        }catch(Exception e){
+            LOGGER.error(e.getMessage(),e);
         } finally {
             if (null != rs)
                 rs.close();
@@ -168,6 +179,8 @@ public class DBFactory {
                 }
                 lists.add(t);
             }
+        }catch(Exception e){
+            LOGGER.error(e.getMessage(),e);
         } finally {
             if (null != rs)
                 rs.close();
@@ -186,6 +199,8 @@ public class DBFactory {
             rs = stmt.executeQuery(sql);
             while (null != rs && rs.next())
                 lists.add(qdi.invoke(rs));
+        }catch(Exception e){
+            LOGGER.error(e.getMessage(),e);
         } finally {
             if (null != rs)
                 rs.close();
@@ -207,6 +222,8 @@ public class DBFactory {
             rs = preStmt.executeQuery();
             while (null != rs && rs.next())
                 lists.add(qdi.invoke(rs));
+        }catch(Exception e){
+            LOGGER.error(e.getMessage(),e);
         } finally {
             if (null != rs)
                 rs.close();
@@ -251,6 +268,8 @@ public class DBFactory {
                     }
                 }
             }
+        }catch(Exception e){
+            LOGGER.error(e.getMessage(),e);
         } finally {
             if (null != rs)
                 rs.close();
@@ -278,10 +297,13 @@ public class DBFactory {
                         T t = (T) c.newInstance(value);
                         lists.add(t);
                         continue label;
-                    } catch (Exception e) {
+                    } catch(Exception e){
+                        LOGGER.error(e.getMessage(),e);
                     }
                 }
             }
+        }catch(Exception e){
+            LOGGER.error(e.getMessage(),e);
         } finally {
             if (null != rs)
                 rs.close();
@@ -322,8 +344,9 @@ public class DBFactory {
     }
 
     private <T> void setValue(T t, Field f, Object value) throws IllegalAccessException {
-        if (null == value)
+        if (value == null) {
             return;
+        }
         String v = value.toString();
         String n = f.getType().getName();
         if ("java.lang.Byte".equals(n) || "byte".equals(n)) {
@@ -348,9 +371,30 @@ public class DBFactory {
             f.set(t, new Time(((java.sql.Time) value).getTime()));
         } else if ("java.sql.Timestamp".equals(n)) {
             f.set(t, (java.sql.Timestamp) value);
+        } else if("oracle.sql.CLOB".equals(n)){
+            f.set(t,(Clob)value);
+            //clob需要单独转换成String  parseClobToString
         } else {
             System.out.println("SqlError：暂时不支持此数据类型，请使用其他类型代替此类型！");
         }
+    }
+
+    /**
+     * Clob转换成string
+     * @param clob
+     * @return
+     * @throws SQLException
+     * @throws IOException
+     */
+    public String parseClobToString(Clob clob) throws SQLException, IOException {
+        BufferedReader br = new BufferedReader(clob.getCharacterStream());
+        String s = null;
+
+        StringBuffer sb = new StringBuffer();
+        while ((s = br.readLine()) != null){
+            sb.append(s);
+        }
+        return sb.toString();
     }
 
     /******************** 事务性操作 ********************/
@@ -360,23 +404,32 @@ public class DBFactory {
         try {
             stmt = con.createStatement();
             return stmt.executeUpdate(sql);
+        } catch(Exception e) {
+            con.rollback();
+            LOGGER.error(e.getMessage(),e);
         } finally {
             if (null != stmt)
                 stmt.close();
         }
+        return 0;
     }
 
     public int execute(Connection con, String sql, Object... params) throws SQLException {
         PreparedStatement preStmt = null;
         try {
             preStmt = con.prepareStatement(sql);
-            for (int i = 0; i < params.length; i++)
+            for (int i = 0; i < params.length; i++) {
                 preStmt.setObject(i + 1, params[i]);// 下标从1开始
+            }
             return preStmt.executeUpdate();
-        } finally {
+        } catch(Exception e) {
+            con.rollback();
+            LOGGER.error(e.getMessage(),e);
+        }finally {
             if (null != preStmt)
                 preStmt.close();
         }
+        return 0;
     }
 
     public int[] executeAsBatch(Connection con, List<String> sqlList) throws SQLException {
@@ -391,11 +444,15 @@ public class DBFactory {
                 stmt.addBatch(sql);
             }
             return stmt.executeBatch();
-        } finally {
+        } catch(Exception e) {
+            con.rollback();
+            LOGGER.error(e.getMessage(),e);
+        }finally {
             if (null != stmt) {
                 stmt.close();
             }
         }
+        return null;
     }
 
     public int[] executeAsBatch(Connection con, String sql, Object[][] params) throws SQLException {
@@ -411,11 +468,15 @@ public class DBFactory {
                 preStmt.addBatch();
             }
             return preStmt.executeBatch();
+        } catch(Exception e) {
+            con.rollback();
+            LOGGER.error(e.getMessage(),e);
         } finally {
             if (null != preStmt) {
                 preStmt.close();
             }
         }
+        return null;
     }
 
     public void executeProcedure(Connection con, String procedureName, Object... params) throws SQLException {
@@ -426,7 +487,10 @@ public class DBFactory {
                 proc.setObject(i + 1, params[i]);
             }
             proc.execute();
-        } finally {
+        } catch(Exception e) {
+            con.rollback();
+            LOGGER.error(e.getMessage(),e);
+        }finally {
             if (null != proc)
                 proc.close();
         }
@@ -444,10 +508,14 @@ public class DBFactory {
             boolean b = proc.execute();
             errorMsg.append(proc.getString(1));
             return b;
-        } finally {
+        } catch(Exception e) {
+            con.rollback();
+            LOGGER.error(e.getMessage(),e);
+        }finally {
             if (null != proc)
                 proc.close();
         }
+        return false;
     }
 
     public <T> List<T> executeProcedureReturnCursor(Connection con, String procedureName, Class<T> beanClass,
@@ -479,7 +547,10 @@ public class DBFactory {
                     lists.add(t);
                 }
             }
-        } finally {
+        } catch(Exception e) {
+            con.rollback();
+            LOGGER.error(e.getMessage(),e);
+        }finally {
             if (null != rs)
                 rs.close();
             if (null != proc)

@@ -8,8 +8,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.jms.TextMessage;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @Description:
@@ -49,9 +52,13 @@ public class ESBTest {
         IBMMQTool.sendToMQ(param, sendDataList);
 
         //ibm mq 接收数据
-        List<String> receiveList = IBMMQTool.receiveDataFromQueue(param);
-        for(String data : receiveList){
-            LOGGER.info(data);
+        Map<byte[],String> receiveMap = IBMMQTool.receiveDataFromQueue(param);
+        for(byte[] msgId : receiveMap.keySet()){
+            try {
+                LOGGER.info(new String(msgId,0,msgId.length,"UTF-8") + "," + receiveMap.get(msgId));
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }
         }
 
         /******* 线程发送及接收数据 ************/
